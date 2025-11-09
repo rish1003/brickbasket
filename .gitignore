@@ -1,0 +1,15 @@
+# Virtual environment
+basketenv/
+venv/
+
+# Django files
+__pycache__/
+*.pyc
+
+# Environment variables
+.env
+
+# IDEs / OS
+.vscode/
+.idea/
+.DS_Store
