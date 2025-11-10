@@ -1,5 +1,5 @@
 from django.shortcuts import render
 
 def hello(request):
-    context = {'name': 'Rishika'}
+    context = {'name': 'Ravleen'}
     return render(request, 'welcome.html', context)
