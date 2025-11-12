@@ -1,0 +1,69 @@
+/* style.css */
+.navbar {
+  /* background-color: #ffdfba !important; */
+  margin: 20px;
+  display: flex;
+  justify-content: space-between;
+  
+  
+}
+
+.navbar-collapse {
+  display: flex;
+  justify-content: flex-end; /* pushes links to right */
+}
+
+.navbar-nav {
+  display: flex;
+  gap: 30px; /* adds space between links */
+  padding-right: 30px;
+}
+
+.navbar-brand {
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: #e67300 !important;
+  padding: 30px;
+}
+
+
+.nav-link {
+  color: #444 !important;
+  transition: 0.3s;
+  padding: 30px;
+}
+
+.nav-link:hover {
+  color: #e67300 !important;
+}
+
+.nav-link svg {
+  display: inline-block;
+  vertical-align: middle;
+  stroke: currentColor;    /* icon color follows link color */
+  fill: none;
+}
+
+.navbar .nav-link {
+  padding: 0.5rem 0.75rem;
+}
+
+/* From Uiverse.io by Mhyar-nsi */ 
+.nav-button {
+  background-color: black;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  width: 100px;
+  height: 40px;
+  transition: 0.3s;
+  font-size: 1rem;
+}
+
+/* Hover effect */
+.nav-button:hover {
+  background-color: #444;
+  color: #fff;
+}
+

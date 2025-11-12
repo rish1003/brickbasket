@@ -1,0 +1,16 @@
+.footer a:hover {
+  color: #000 !important;
+  text-decoration: underline;
+}
+
+.footer h6 {
+  font-weight: 700;
+}
+
+.footer .bi {
+  transition: color 0.2s ease;
+}
+
+.footer .bi:hover {
+  color: #000;
+}
