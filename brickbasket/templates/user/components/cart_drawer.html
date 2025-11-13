@@ -1,0 +1,161 @@
+{% load static %}
+
+
+<div id="cartBackdrop" class="cart-backdrop"></div>
+
+<div id="cartDrawer" class="cart-drawer">
+
+    <div class="cart-header d-flex justify-content-between">
+        <h5 class="mb-0" id="cartHeaderText">Your cart</h5>
+        <button class="btn-close" onclick="toggleCartDrawer(false)"></button>
+    </div>
+
+    <div class="cart-body">
+        <div id="cartLoader" class="cart-loader"></div>
+
+        <div id="emptyCartMessage">
+            <h5>No Items Yet!</h5>
+            <p class="text-muted mb-0">Your basket is empty.</p>
+        </div>
+
+        <h6 class="mb-3" id="itemsHeader" style="display:none;">Items in Cart</h6>
+        <div id="cartItemsContainer"></div>
+    </div>
+
+    <div class="cart-footer" id="cartFooter">
+        <div class="d-flex justify-content-between" style="font-size:1.1em;font-weight:700;">
+            <span>Estimated Total</span>
+            <span id="cartTotal">₹0</span>
+        </div>
+        <button class="checkout-button" onclick="goToCheckout()">
+    Checkout
+    </button>
+    </div>
+</div>
+
+<script>
+const drawer = document.getElementById("cartDrawer");
+const backdrop = document.getElementById("cartBackdrop");
+const loader = document.getElementById("cartLoader");
+
+function showLoader(show) {
+    loader.style.display = show ? 'block' : 'none';
+    const container = document.getElementById("cartItemsContainer");
+    container.style.opacity = show ? 0.4 : 1; 
+    
+
+}
+
+function toggleCartDrawer(show) {
+    if (show) {
+        loadCart();
+        drawer.classList.add("show");
+        backdrop.classList.add("show");
+        document.body.style.overflow = "hidden";
+    } else {
+        drawer.classList.remove("show");
+        setTimeout(() => {
+            backdrop.classList.remove("show");
+            document.body.style.overflow = "";
+        }, 300);
+    }
+}
+
+function goToCheckout() {
+    toggleCartDrawer(false); 
+    window.location.href = "{% url 'checkout' %}"; }
+
+backdrop.addEventListener("click", () => toggleCartDrawer(false));
+
+document.addEventListener("keydown", e => {
+    if (e.key === "Escape") toggleCartDrawer(false);
+});
+
+function updateCartUI(data) {
+    const container = document.getElementById("cartItemsContainer");
+    const header = document.getElementById("cartHeaderText");
+    const empty = document.getElementById("emptyCartMessage");
+    const footer = document.getElementById("cartFooter");
+    const itemsHeader = document.getElementById("itemsHeader");
+
+    if (data.count === 0) {
+        header.innerText = "Your cart is empty";
+        empty.style.display = "block";
+        container.innerHTML = "";
+        itemsHeader.style.display = "none";
+        footer.style.display = "none";
+        return;
+    }
+
+    empty.style.display = "none";
+    footer.style.display = "block";
+    itemsHeader.style.display = "block";
+    header.innerText = `Your cart – ${data.count} item${data.count !== 1 ? "s" : ""}`;
+
+    container.innerHTML = "";
+    data.items.forEach(item => {
+        container.innerHTML += `
+        <div class="cart-item">
+            <img src="${item.image}" style="width:60px;height:60px;border-radius:5px;object-fit:cover;">
+            <div class="item-details" style="flex:1;">
+                <p class="mb-1" style="font-weight:500;">${item.name}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="item-quantity">
+                        <button onclick="updateQty(${item.cart_item_id}, 'dec')">-</button>
+                        <span class="mx-2">${item.quantity}</span>
+                        <button onclick="updateQty(${item.cart_item_id}, 'inc')">+</button>
+                    </div>
+                    <span style="font-weight:700;font-size:1.05em;">₹${item.subtotal}</span>
+                </div>
+            </div>
+            <button onclick="removeItem(${item.cart_item_id})" class="btn p-0">🗑</button>
+        </div>`;
+    });
+
+    document.getElementById("cartTotal").innerText = `₹${data.total}`;
+}
+
+async function loadCart() {
+    showLoader(true);
+    try {
+        const res = await fetch("/cart/data/");
+        if (res.ok) {
+            const data = await res.json();
+            updateCartUI(data);
+        } else {
+            console.error("Initial cart load failed.");
+        }
+    } catch (error) {
+        console.error("Network error during initial load:", error);
+    } finally {
+        showLoader(false);
+    }
+}
+
+async function updateCart(url, method = "POST") {
+    showLoader(true);
+    try {
+        const res = await fetch(url, { method: method });
+        if (res.ok) {
+            const data = await res.json(); 
+            updateCartUI(data);
+        } else {
+            console.error("Cart update failed on server.");
+        }
+    } catch (error) {
+        console.error("Network error during cart update:", error);
+    } finally {
+        showLoader(false);
+    }
+}
+
+function updateQty(id, action) {
+    const url = `/cart/${id}/${action === "inc" ? "inc" : "dec"}/`;
+    updateCart(url);
+}
+
+function removeItem(id) {
+    const url = `/cart/${id}/delete/`;
+    updateCart(url);
+}
+</script>

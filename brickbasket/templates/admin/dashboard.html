@@ -1,0 +1,305 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel - BrickBasket</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/admin/admin.css' %}">
+
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">BrickBasket</a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ms-auto align-items-center"> 
+        
+        
+
+          <li>
+            <form method="POST" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button class="nav-button" type="submit">Logout</button>
+            </form>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+
+  <div class="admin-container">
+
+    <div class="page-header">
+      <h1>Admin Dashboard</h1>
+      <p>Manage users, vendors, and monitor system performance</p>
+    </div>
+
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Total Users</h3>
+        <div class="value">{{ total_users|default:"0" }}</div>
+        <div class="change {{ user_growth_class }}">{{ user_growth }}  growth since last month</div>
+      </div>
+
+      <div class="stat-card">
+        <h3>Active Vendors</h3>
+        <div class="value">{{ active_vendors|default:"0" }}</div>
+        <div class="change {{ vendor_growth_class }}">{{ vendor_growth }}  growth since last month</div>
+      </div>
+
+      <div class="stat-card">
+        <h3>Pending Approvals</h3>
+        <div class="value">{{ pending_vendors|default:"0" }}</div>
+        {% if pending_vendors > 0 %}
+        <div class="change negative">Requires attention</div>
+        {% endif %}
+      </div>
+
+      <div class="stat-card">
+        <h3>Total Orders</h3>
+        <div class="value">{{ total_orders|default:"0" }}</div>
+        <div class="change {{ order_growth_class }}">{{ order_growth }} growth since last month</div>
+
+      </div>
+    </div>
+
+
+    <div class="section-card">
+      <h2>
+        <span>Pending Vendor Registrations</span>
+        <span class="badge-custom badge-pending">{{ pending_vendors_count|default:"0" }} Pending</span>
+      </h2>
+      
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Vendor Name</th>
+            <th>Email</th>
+            <th>Business Name</th>
+            <th>Registration Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for vendor in pending_vendor_list %}
+          <tr>
+            <td>{{ vendor.user.username }}</td>
+            <td>{{ vendor.user.email }}</td>
+            <td>{{ vendor.company_name }}</td>
+            <td>{{ vendor.user.date_joined|date:"M d, Y" }}</td>
+            <td><span class="badge-custom badge-pending">Pending</span></td>
+            <td>
+              <div class="action-buttons">
+                <form method="POST" action="{% url 'approve_vendor' vendor.vendor_id %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn-primary-custom btn-sm">Approve</button>
+                </form>
+                <form method="POST" action="{% url 'reject_vendor' vendor.vendor_id %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn-secondary-custom btn-sm">Reject</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" style="text-align: center; color: #666;">No pending vendor registrations</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+
+    <div class="section-card">
+      <h2>All Users</h2>
+      
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>User Type</th>
+            <th>Join Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in all_users %}
+          <tr>
+            <td>{{ user.first_name }} {{ user.last_name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.role|capfirst }}</td>
+            <td>{{ user.date_joined|date:"M d, Y" }}</td>
+            <td>
+              {% if user.is_active %}
+                <span class="badge-custom badge-active">Active</span>
+              {% else %}
+                <span class="badge-custom badge-inactive">Inactive</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="action-buttons">
+                <form method="POST" action="{% url 'toggle_user_status' user.id %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn-secondary-custom btn-sm">
+                    {% if user.is_active %}Deactivate{% else %}Activate{% endif %}
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" style="text-align: center; color: #666;">No users found</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+
+    <div class="section-card">
+      <h2>System Reports & Analytics</h2>
+      
+      <div class="charts-grid">
+
+        <div class="chart-container">
+          <h3>User Growth (Last 6 Months)</h3>
+          <canvas id="userGrowthChart"></canvas>
+        </div>
+
+
+        <div class="chart-container">
+          <h3>Order Statistics</h3>
+          <canvas id="orderStatsChart"></canvas>
+        </div>
+
+        <div class="chart-container">
+          <h3>Vendor Status Distribution</h3>
+          <canvas id="vendorDistChart"></canvas>
+        </div>
+
+
+        <div class="chart-container">
+          <h3>Monthly Revenue Trend</h3>
+          <canvas id="revenueChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <script>
+    const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
+    new Chart(userGrowthCtx, {
+      type: 'line',
+      data: {
+        labels: {{ user_growth_labels|safe }},
+        datasets: [{
+          label: 'Total Users',
+          data: {{ user_growth_data|safe }},
+          borderColor: '#d2691e',
+          backgroundColor: 'rgba(210, 105, 30, 0.1)',
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    // Order Statistics Chart
+    const orderStatsCtx = document.getElementById('orderStatsChart').getContext('2d');
+    new Chart(orderStatsCtx, {
+      type: 'bar',
+      data: {
+        labels: {{ order_stats_labels|safe }},
+        datasets: [{
+          label: 'Orders',
+          data: {{ order_stats_data|safe }},
+          backgroundColor: '#d2691e'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    // Vendor Distribution Chart
+    const vendorDistCtx = document.getElementById('vendorDistChart').getContext('2d');
+    new Chart(vendorDistCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Active', 'Pending', 'Inactive'],
+        datasets: [{
+          data: {{ vendor_distribution|safe }},
+          backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true
+      }
+    });
+
+    // Revenue Chart
+    const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+    new Chart(revenueCtx, {
+      type: 'line',
+      data: {
+        labels: {{ revenue_labels|safe }},
+        datasets: [{
+          label: 'Revenue (₹ Lakhs)',
+          data: {{ revenue_data|safe }},
+          borderColor: '#28a745',
+          backgroundColor: 'rgba(40, 167, 69, 0.1)',
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

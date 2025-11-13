@@ -1,0 +1,71 @@
+
+        body {
+            background-color: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Inter', sans-serif;
+        }
+        main {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .success-card {
+            max-width: 650px;
+            width: 100%;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+        .icon-circle {
+            background-color: #10b981;
+            color: #fff;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 30px auto;
+            animation: bounceIn 0.8s ease-out;
+        }
+        .order-id-tag {
+            display: inline-block;
+            background-color: #e0f2fe;
+            color: #0c4a6e;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-top: 15px;
+        }
+        .button-group {
+            margin-top: 40px;
+        }
+        .btn-primary-slay {
+            background-color: #000;
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+        }
+        .btn-secondary-slay {
+            color: #64748b;
+            padding: 12px 25px;
+            border-radius: 30px;
+            border: 1px solid #cbd5e1;
+            font-weight: 600;
+            margin-left: 15px;
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); }
+        }
