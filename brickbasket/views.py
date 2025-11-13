@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from .decorators import *
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
@@ -74,14 +75,24 @@ def signup(request):
 
     # ---- Redirect Based on Role ----
     if role == "vendor":
-        return render(request, "vendor/homepage.html", {"user": user,"vendor":vendor})
+        target_url = reverse(vendor_main) # Use reverse to get the URL
     elif role == "customer":
-        return render(request, "user/homepage.html", {"user": user}) #user deets can now be accessed
+        target_url = reverse(user_main)
     else:
-        return redirect("landing")
+        return JsonResponse({
+        "success": False, 
+        "error": "error occurred",
+        }, status=404)
+
+    return JsonResponse({
+        "success": True, 
+        "message": "Signup successful",
+        "redirect_url": target_url
+    }, status=200)
 
 def user_home(request, context):
     return  
+
 @csrf_exempt
 def user_login(request):
     if request.method != "POST":
@@ -106,18 +117,22 @@ def user_login(request):
     else:
         return JsonResponse({"error": "Invalid credentials"}, status=401)
 
-
-def api_logout(request):
+@csrf_exempt
+def user_logout(request):
     logout(request)
-    return JsonResponse({"success": True, "message": "Logged out successfully"})
+    return render(request, 'landing_login.html')
 # def navbar(request):
 #     #navbar
 #     return render(request, 'user/navbar.html')
 
 def user_main(request):
-    #first page user sees after liging in
+    #first page user sees after logging in
     return render(request, 'user/user_main.html')
 
+
+def vendor_main(request):
+    #first page user sees after logging in
+    return render(request, 'vendor/vendor_main.html')
 
 def product_view(request):
     #product details page, viewed on clicking a product card
