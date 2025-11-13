@@ -145,7 +145,7 @@ def signin(request):
         
         login(request, user)
         if role == "vendor":
-            target_url = reverse(vendor_main) # Use reverse to get the URL
+            target_url = reverse(vendor_main) 
         elif role == "customer":
             target_url = reverse(user_main)
         elif role == "admin":
@@ -255,7 +255,7 @@ def admin_dashboard(request):
     first_day_last_month = (first_day_this_month - timedelta(days=1)).replace(day=1)
 
     # -------------------------
-    # 1️⃣ TOTAL USERS & GROWTH
+    # TOTAL USERS & GROWTH
     # -------------------------
     total_users = User.objects.count()
 
@@ -268,7 +268,7 @@ def admin_dashboard(request):
     user_growth = calculate_percentage_change(users_this_month, users_last_month)
 
     # -------------------------
-    # 1A️⃣ USER GROWTH CHART (last 6 months)
+    # USER GROWTH CHART (last 6 months)
     # -------------------------
     user_qs = (
         User.objects.annotate(month=TruncMonth("date_joined"))
@@ -289,7 +289,7 @@ def admin_dashboard(request):
         user_growth_data = [0] * 6
 
     # -------------------------
-    # 2️⃣ ACTIVE VENDORS & GROWTH
+    #  ACTIVE VENDORS & GROWTH
     # -------------------------
     active_vendors = Vendor.objects.filter(verified=True).count()
     pending_vendors_count = Vendor.objects.filter(verified=False).count()
@@ -307,7 +307,7 @@ def admin_dashboard(request):
     vendor_growth = calculate_percentage_change(vendors_this_month, vendors_last_month)
 
     # -------------------------
-    # 2A️⃣ VENDOR DISTRIBUTION CHART
+    # VENDOR DISTRIBUTION CHART
     # -------------------------
     vendor_distribution = [
         active_vendors,
@@ -316,7 +316,7 @@ def admin_dashboard(request):
     ]
 
     # -------------------------
-    # 3️⃣ TOTAL ORDERS & GROWTH
+    #  TOTAL ORDERS & GROWTH
     # -------------------------
     total_orders = Order.objects.filter(payment_status="paid").count()
 
@@ -334,7 +334,7 @@ def admin_dashboard(request):
     order_growth = calculate_percentage_change(orders_this_month, orders_last_month)
 
     # -------------------------
-    # 3A️⃣ ORDER STATS CHART (last 6 months)
+    #ORDER STATS CHART (last 6 months)
     # -------------------------
     order_qs = (
         Order.objects.filter(payment_status='paid')
@@ -356,7 +356,7 @@ def admin_dashboard(request):
         order_stats_data = [0] * 6
 
     # -------------------------
-    # 4️⃣ REVENUE (last 6 months)
+    # REVENUE (last 6 months)
     # -------------------------
     six_months_ago = today - timedelta(days=180)
 
@@ -548,15 +548,15 @@ def delete_cart_item(request, item_id):
 def checkout_page(request):
     user = request.user
 
-    # If not logged in → redirect
+
     if not user.is_authenticated:
         return redirect("signin")
 
-    # Fetch cart items
+
     cart_items = CartItem.objects.filter(user=user).select_related("product")
 
     if not cart_items.exists():
-        return redirect("user_main")  # No checkout if cart empty
+        return redirect("user_main")  
 
     subtotal = sum(i.product.price * i.quantity for i in cart_items)
     shipping = 0  # free
