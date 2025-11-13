@@ -23,7 +23,11 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', landing, name="hello"),
+     path('signup/', signup, name='signup'),
+    path('login/', user_login, name='userlogin'),
+    path('logout/', user_logout, name='logout'),
+
     path('user/', user_main, name="user_main"),
-    path('user/product', product_view, name="product")
+    path('user/product', product_view, name="produSct")
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

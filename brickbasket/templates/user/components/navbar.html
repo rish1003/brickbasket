@@ -47,7 +47,10 @@
 
           <li>
             <a>
-              <button class="nav-button">Explore</button>
+              <form method="POST" action="{% url 'logout' %}">
+                  <button class="nav-button" type="submit">Logout</button>
+              </form>
+
             </a>
           </li>
         </ul>
