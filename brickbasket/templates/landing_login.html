@@ -2,372 +2,533 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BrickBasket</title>
-  <link rel="stylesheet" href="{% static 'css/landing.css' %}">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BrickBasket</title>
+    <link rel="stylesheet" href="{% static 'css/landing.css' %}">
 
+    <script>
+        const getIcon = (name, size = 20) => {
+            const icons = {
+                'mail': '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline>',
+                'lock': '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>',
+                'eye': '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>',
+                'eye-off': '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22"></path>',
+                'user': '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle>',
+                'building': '<rect x="3" y="6" width="18" height="15" rx="2" ry="2"></rect><path d="M12 11V6"></path><path d="M9 11h6"></path><path d="M9 15h6"></path><path d="M9 19h6"></path>',
+                'dollar': '<line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>',
+            };
+            return `<svg height="${size}" width="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icons[name] || icons['eye']}</svg>`;
+        };
 
+        const showAlert = (title, message) => {
+            const popup = document.getElementById('alert-popup');
+            document.getElementById('alert-title').textContent = title;
+            document.getElementById('alert-message').textContent = message;
+            popup.style.display = 'flex';
+        };
+
+        const closeAlert = () => {
+            document.getElementById('alert-popup').style.display = 'none';
+        };
+
+        const showError = (inputElement, message) => {
+            const inputForm = inputElement.closest('.inputForm');
+            if (!inputForm) return;
+
+            inputForm.classList.add('error');
+
+            let errorMsg = inputForm.nextElementSibling;
+            if (!errorMsg || !errorMsg.classList.contains('error-message')) {
+                errorMsg = document.createElement('p');
+                errorMsg.classList.add('error-message');
+                inputForm.parentNode.insertBefore(errorMsg, inputForm.nextElementSibling);
+            }
+
+            errorMsg.textContent = message;
+            errorMsg.style.display = 'block';
+        };
+
+        const clearError = (inputElement) => {
+            const inputForm = inputElement.closest('.inputForm');
+            if (!inputForm) return;
+
+            inputForm.classList.remove('error');
+
+            const errorMsg = inputForm.nextElementSibling;
+            if (errorMsg && errorMsg.classList.contains('error-message')) {
+                errorMsg.style.display = 'none';
+            }
+        };
+
+        const clearAllErrors = (form) => {
+             form.querySelectorAll('input').forEach(input => clearError(input));
+        };
+
+        const showLoader = () => {
+            document.getElementById('page-loader').style.display = 'flex';
+        };
+
+        const hideLoader = () => {
+            document.getElementById('page-loader').style.display = 'none';
+        };
+
+        const togglePasswordVisibility = (element) => {
+
+            const inputForm = element.closest('.inputForm');
+            const passwordInput = inputForm ? inputForm.querySelector('input[type="password"], input[type="text"]') : null;
+
+            if (passwordInput) {
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    element.innerHTML = getIcon('eye-off'); 
+                } else {
+                    passwordInput.type = 'password';
+                    element.innerHTML = getIcon('eye'); 
+                }
+            }
+        };
+    </script>
 </head>
 <body>
-  <div class="container">
-    <div class="image-section" id="imageSection" style="background: url('{% static 'images/landing.jpeg' %}') center/cover no-repeat;">
-      <h1>BrickBasket</h1>
-    </div>
-    <div class="login-section" id="loginSection">
-      
-      <div class="form-section" id="roleSelectionSection">
-        <div class="flex-column" style="text-align: center; padding-top: 50px;">
-          <h1>Join BrickBasket</h1>
-          <p>How will you be using our platform?</p>
-          
-        <div style="
-    display: flex; 
-    flex-direction: column; 
-    gap: 20px; 
-    margin-top: 20px; 
-    width: 80%; 
-    max-width: 400px; 
-    align-items: center; 
-    margin-left: auto; 
-    margin-right: auto;
-">
-    <button class="role-button" data-role="customer" style="width: 100%; text-align: center;">
-        <h2>Customer</h2>
-        <p style="font-size: 0.9em;">Browse and purchase materials.</p>
-    </button>
-    <button class="role-button" data-role="vendor" style="width: 100%; text-align: center;">
-        <h2>Vendor</h2>
-        <p style="font-size: 0.9em;">List and sell construction materials.</p>
-    </button>
-</div>
+    <div id="alert-popup">
+        <div id="alert-popup-content">
+            <h3 id="alert-title">Error!</h3>
+            <p id="alert-message">There was an issue processing your request.</p>
+            <button onclick="closeAlert()">OK</button>
         </div>
-      </div>
-      
-      <div class="form-section hidden-form" id="userSection">
+    </div>
+    <div class="container">
+        <div class="image-section" id="imageSection" style="background: url('{% static 'images/landing.jpeg' %}') center/cover no-repeat;">
+            <h1>BrickBasket</h1>
+        </div>
         
-        <div id="userSignInForm">
-          <form class="form">
-            <div class="flex-column">
-              <h1>User Sign In</h1>
-            </div>    
-            <div class="flex-column"><label>Email </label></div>
-            <div class="inputForm">
-              <svg height="20" viewBox="0 0 32 32" width="20" xmlns="http://www.w3.org/2000/svg"><g id="Layer_3" data-name="Layer 3"><path d="m30.853 13.87a15 15 0 0 0 -29.729 4.082 15.1 15.1 0 0 0 12.876 12.918 15.6 15.6 0 0 0 2.016.13 14.85 14.85 0 0 0 7.715-2.145 1 1 0 1 0 -1.031-1.711 13.007 13.007 0 1 1 5.458-6.529 2.149 2.149 0 0 1 -4.158-.759v-10.856a1 1 0 0 0 -2 0v1.726a8 8 0 1 0 .2 10.325 4.135 4.135 0 0 0 7.83.274 15.2 15.2 0 0 0 .823-7.455zm-14.853 8.13a6 6 0 1 1 6-6 6.006 6.006 0 0 1 -6 6z"></path></g></svg>
-              <input type="text" class="input" placeholder="Enter your Email">
+        <div class="login-section" id="loginSection">
+            
+            <div class="form-section" id="roleSelectionSection">
+                <div class="flex-column" style="text-align: center; padding: 40px 0;">
+                    <h1>Join BrickBasket</h1>
+                    <p style="margin-top: 10px; color: #555;">How will you be using our platform?</p>
+                </div>
+                <div style="
+                    display: flex; 
+                    flex-direction: column; 
+                    gap: 25px; 
+                    margin-top: 20px; 
+                    width: 90%; 
+                    max-width: 450px; 
+                    margin: 20px auto;
+                    padding-bottom: 50px;
+                ">
+                    <button class="role-button" data-role="customer" style="width: 100%; text-align: center; padding: 20px;">
+                        <h2>Customer</h2>
+                        <p style="font-size: 0.9em; margin-top: 5px;">Browse and purchase materials.</p>
+                    </button>
+                    <button class="role-button" data-role="vendor" style="width: 100%; text-align: center; padding: 20px;">
+                        <h2>Vendor</h2>
+                        <p style="font-size: 0.9em; margin-top: 5px;">List and sell construction materials.</p>
+                    </button>
+                </div>
             </div>
             
-            <div class="flex-column"><label>Password </label></div>
-            <div class="inputForm">
-              <svg height="20" viewBox="-64 0 512 512" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m336 512h-288c-26.453125 0-48-21.523438-48-48v-224c0-26.476562 21.546875-48 48-48h288c26.453125 0 48 21.523438 48 48v224c0 26.476562-21.546875 48-48 48zm-288-288c-8.8125 0-16 7.167969-16 16v224c0 8.832031 7.1875 16 16 16h288c8.8125 0 16-7.167969 16-16v-224c0-8.832031-7.1875-16-16-16zm0 0"></path><path d="m304 224c-8.832031 0-16-7.167969-16-16v-80c0-52.929688-43.070312-96-96-96s-96 43.070312-96 96v80c0 8.832031-7.167969 16-16 16s-16-7.167969-16-16v-80c0-70.59375 57.40625-128 128-128s128 57.40625 128 128v80c0 8.832031-7.167969 16-16 16zm0 0"></path></svg>        
-              <input type="password" class="input" placeholder="Enter your Password">
-              <svg viewBox="0 0 576 512" height="1em" xmlns="http://www.w3.org/2000/svg"><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM144 256a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm144-64c0 35.3-28.7 64-64 64c-7.1 0-13.9-1.2-20.3-3.3c-5.5-1.8-11.9 1.6-11.7 7.4c.3 6.9 1.3 13.8 3.2 20.7c13.7 51.2 66.4 81.6 117.6 67.9s81.6-66.4 67.9-117.6c-11.1-41.5-47.8-69.4-88.6-71.1c-5.8-.2-9.2 6.1-7.4 11.7c2.1 6.4 3.3 13.2 3.3 20.3z"></path></svg>
+            <div class="form-section hidden-form" id="userSection">
+                
+                <div id="userSignInForm">
+                    <form class="form">
+                        <div class="flex-column" style="margin-bottom: 20px;">
+                            <h1>Customer Sign In</h1>
+                        </div>
+                        
+                        <div class="flex-column"><label>Email or Username </label></div>
+                        <div class="inputForm">
+                            <script>document.write(getIcon('mail'));</script>
+                            <input type="text" name="username" class="input" placeholder="Enter your Email or Username" required>
+                        </div>
+                        
+                        <div class="flex-column" style="margin-top: 15px;"><label>Password </label></div>
+                        <div class="inputForm">
+                            <script>document.write(getIcon('lock'));</script>
+                            <input type="password" name="password" class="input" placeholder="Enter your Password" required>
+                            <span class="password-toggle" onclick="togglePasswordVisibility(this);"><script>document.write(getIcon('eye'));</script></span> 
+                        </div>
+                        
+                        <div class="flex-row" style="margin-top: 15px; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center;"><input type="checkbox" name="remember" value="on"><label style="margin-left: 5px; font-size: 0.9em;">Remember me </label></div>
+                            {% comment %} <span class="span link-button" style="font-size: 0.9em;">Forgot password?</span> {% endcomment %}
+                        </div> 
+                        
+                        <button class="button-submit" style="margin-top: 25px;">Sign In</button>
+                        <p class="p" style="margin-top: 20px;">Don't have an account? <span class="span link-button" data-toggle="userSignUp"><strong>Sign Up</strong></span></p>
+                        <p class="p" style="margin-top: 10px;"><span class="span link-button" data-toggle="roleSelect">← Change Role</span></p>
+                    </form>
+                </div>
+
+                <div id="userSignUpForm" class="hidden-form">
+                    <form class="form" novalidate>
+                        <div class="flex-column" style="margin-bottom: 20px;"><h1>Customer Sign Up</h1></div>
+
+                        <div class="flex-column"><label>First Name</label></div>
+                        <div class="inputForm">
+                            <script>document.write(getIcon('user'));</script>
+                            <input type="text" name="first_name" class="input" placeholder="Enter your First Name" required>
+                        </div>
+
+                        <div class="flex-column" style="margin-top: 15px;"><label>Last Name</label></div>
+                        <div class="inputForm">
+                            <script>document.write(getIcon('user'));</script>
+                            <input type="text" name="last_name" class="input" placeholder="Enter your Last Name" required>
+                        </div>
+
+                        
+
+                        <div class="flex-column" style="margin-top: 15px;"><label>Email </label></div>
+                        <div class="inputForm">
+                            <script>document.write(getIcon('mail'));</script>
+                            <input type="email" name="email" class="input" placeholder="Enter your Email" required>
+                        </div>
+
+                        <div class="flex-column" style="margin-top: 15px;"><label>Password </label></div>
+                        <div class="inputForm">
+                            <script>document.write(getIcon('lock'));</script>
+                            <input type="password" name="password" id="user_password" class="input" placeholder="Create a Password" required minlength="8">
+                            <span class="password-toggle" onclick="togglePasswordVisibility(this);"><script>document.write(getIcon('eye'));</script></span> 
+                        </div>
+
+                        <div class="flex-column" style="margin-top: 15px;"><label>Confirm Password </label></div>
+                        <div class="inputForm">
+                            <script>document.write(getIcon('lock'));</script>
+                            <input type="password" name="confirm_password" id="user_confirm_password" class="input" placeholder="Re-enter Password" required>
+                            <span class="password-toggle" onclick="togglePasswordVisibility(this);"><script>document.write(getIcon('eye'));</script></span> 
+                        </div>
+
+                        <button class="button-submit" style="margin-top: 25px;">Sign Up</button>
+                        <p class="p" style="margin-top: 20px;">Already have an account? <span class="span link-button" data-toggle="userSignIn"><strong>Sign In</strong></span></p>
+                        <p class="p" style="margin-top: 10px;"><span class="span link-button" data-toggle="roleSelect">← Change Role</span></p>
+                    </form>
+                </div>
             </div>
             
-            <div class="flex-row">
-              <div><input type="checkbox"><label>Remember me </label></div>
-              <span class="span">Forgot password?</span>
+            <div class="form-section hidden-form" id="vendorSection">
+
+                <div id="vendorSignInForm">
+                    <form class="form">
+                        <div class="flex-column" style="margin-bottom: 20px;">
+                            <h1>Vendor Sign In</h1>
+                        </div>
+                        
+                        <div class="flex-column"><label>Company Email </label></div>
+                        <div class="inputForm">
+                            <script>document.write(getIcon('mail'));</script>
+                            <input type="email" name="email" class="input" placeholder="Enter Company Email" required>
+                        </div>
+                        
+                        <div class="flex-column" style="margin-top: 15px;"><label>Password </label></div>
+                        <div class="inputForm">
+                            <script>document.write(getIcon('lock'));</script>
+                            <input type="password" class="input" name="password" placeholder="Enter Password" required>
+                            <span class="password-toggle" onclick="togglePasswordVisibility(this);"><script>document.write(getIcon('eye'));</script></span>
+                        </div>
+
+                        <div class="flex-row" style="margin-top: 15px; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center;"><input type="checkbox" name="remember" value="on"><label style="margin-left: 5px; font-size: 0.9em;">Remember me </label></div>
+                            {% comment %} <span class="span link-button" style="font-size: 0.9em;">Forgot password?</span> {% endcomment %}
+                        </div> 
+                        
+                        <button class="button-submit" style="margin-top: 25px;">Vendor Sign In</button>
+                        <p class="p" style="margin-top: 20px;">New vendor? <span class="span link-button" data-toggle="vendorSignUp"><strong>Sign Up Here</strong></span></p>
+                        <p class="p" style="margin-top: 10px;"><span class="span link-button" data-toggle="roleSelect">← Change Role</span></p>
+                    </form>
+                </div>
+
+                <div id="vendorSignUpForm" class="hidden-form">
+                    <form class="form" novalidate>
+                        <div class="flex-column" style="margin-bottom: 20px;"><h1>Vendor Sign Up</h1></div>
+                        
+                        <div class="flex-column"><label>Company Name </label></div>
+                        <div class="inputForm">
+                            <script>document.write(getIcon('building'));</script>
+                            <input type="text" name="company_name" class="input" placeholder="Brick & Co." required>
+                        </div>
+
+                        <div class="flex-column" style="margin-top: 15px;"><label>Official Email </label></div>
+                        <div class="inputForm">
+                            <script>document.write(getIcon('mail'));</script>
+                            <input type="email" name="email" class="input" placeholder="contact@brickco.com" required>
+                        </div>
+
+                        <div class="flex-column" style="margin-top: 15px;"><label>Business GST Number </label></div>
+                        <div class="inputForm">
+                            <script>document.write(getIcon('dollar'));</script>
+                            <input type="text" name="gst_number" class="input" placeholder="e.g., V456789ABC" required>
+                        </div>
+                        
+                        <div class="flex-column" style="margin-top: 15px;"><label>Password </label></div>
+                        <div class="inputForm">
+                            <script>document.write(getIcon('lock'));</script>
+                            <input type="password" name="password" id="vendor_password" class="input" placeholder="Create a Secure Password" required minlength="8">
+                            <span class="password-toggle" onclick="togglePasswordVisibility(this);"><script>document.write(getIcon('eye'));</script></span> 
+                        </div>
+                        
+                        <div class="flex-column" style="margin-top: 15px;"><label>Confirm Password </label></div>
+                        <div class="inputForm">
+                            <script>document.write(getIcon('lock'));</script>
+                            <input type="password" name="confirm_password" id="vendor_confirm_password" class="input" placeholder="Re-enter Password" required>
+                            <span class="password-toggle" onclick="togglePasswordVisibility(this);"><script>document.write(getIcon('eye'));</script></span> 
+                        </div>
+                        
+                        <button class="button-submit" style="margin-top: 25px;">Register Vendor</button>
+                        <p class="p" style="margin-top: 20px;">Already registered? <span class="span link-button" data-toggle="vendorSignIn"><strong>Sign In</strong></span></p>
+                        <p class="p" style="margin-top: 10px;"><span class="span link-button" data-toggle="roleSelect">← Change Role</span></p>
+                    </form>
+                </div>
             </div>
-            <button class="button-submit">Sign In</button>
-            <p class="p">Don't have an account? <span class="span link-button" data-toggle="userSignUp">Sign Up</span></p>
-            <p class="p"><span class="span link-button" data-toggle="roleSelect">← Change Role</span></p>
-          </form>
+
         </div>
-
-        <div id="userSignUpForm" class="hidden-form">
-  <form class="form">
-    <div class="flex-column"><h1>User Sign Up</h1></div>
-
-    <!-- FIRST NAME -->
-    <div class="flex-column"><label>First Name</label></div>
-    <div class="inputForm">
-      <svg height="20" width="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path fill-rule="evenodd" clip-rule="evenodd"
-          d="M12 4a4 4 0 100 8 4 4 0 000-8zM4 18a8 8 0 1116 0h-2c0-3.313-2.687-6-6-6s-6 2.687-6 6H4z" fill="#000"/>
-      </svg>
-      <input type="text" name="first_name" class="input" placeholder="Enter your First Name">
     </div>
 
-    <!-- LAST NAME -->
-    <div class="flex-column"><label>Last Name</label></div>
-    <div class="inputForm">
-      <svg height="20" width="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path fill-rule="evenodd" clip-rule="evenodd"
-          d="M12 4a4 4 0 100 8 4 4 0 000-8zM4 18a8 8 0 1116 0h-2c0-3.313-2.687-6-6-6s-6 2.687-6 6H4z" fill="#000"/>
-      </svg>
-      <input type="text" name="last_name" class="input" placeholder="Enter your Last Name">
+    <div id="page-loader">
+        <div class="spinner"></div>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+          const lastLogin = localStorage.getItem("last_login_id");
+          if (lastLogin) {
+              const userInput = document.querySelector('#userSignInForm input[name="username"]');
+              if (userInput) userInput.value = lastLogin;
 
-    <!-- USERNAME -->
-    <div class="flex-column"><label>Username </label></div>
-    <div class="inputForm">
-      <svg height="20" width="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path fill-rule="evenodd" clip-rule="evenodd"
-          d="M12 4a4 4 0 100 8 4 4 0 000-8zM4 18a8 8 0 1116 0h-2c0-3.313-2.687-6-6-6s-6 2.687-6 6H4z" fill="#000"/>
-      </svg>
-      <input type="text" name="username" class="input" placeholder="Enter a Username">
-    </div>
+              const vendorInput = document.querySelector('#vendorSignInForm input[name="email"]');
+              if (vendorInput) vendorInput.value = lastLogin;
+          }
+            const imageSection = document.getElementById("imageSection");
+            const loginSection = document.getElementById("loginSection");
 
-    <!-- EMAIL -->
-    <div class="flex-column"><label>Email </label></div>
-    <div class="inputForm">
-      <svg height="20" viewBox="0 0 32 32" width="20" xmlns="http://www.w3.org/2000/svg">
-        <g id="Layer_3" data-name="Layer 3">
-          <path d="m30.853 13.87a15 15 0 0 0 -29.729 4.082 15.1 15.1 0 0 0 12.876 12.918 15.6 15.6 0 0 0 2.016.13 
-          14.85 14.85 0 0 0 7.715-2.145 1 1 0 1 0 -1.031-1.711 
-          13.007 13.007 0 1 1 5.458-6.529 
-          2.149 2.149 0 0 1 -4.158-.759v-10.856a1 1 0 0 0 -2 0v1.726a8 
-          8 0 1 0 .2 10.325 4.135 4.135 0 0 0 
-          7.83.274 15.2 15.2 0 0 0 .823-7.455zm-14.853 
-          8.13a6 6 0 1 1 6-6 6.006 6.006 0 0 1 -6 6z"></path>
-        </g>
-      </svg>
-      <input type="email" name="email" class="input" placeholder="Enter your Email">
-    </div>
+            const roleSelectionSection = document.getElementById("roleSelectionSection");
+            const userSection = document.getElementById("userSection");
+            const vendorSection = document.getElementById("vendorSection");
 
-    <!-- PASSWORD -->
-    <div class="flex-column"><label>Password </label></div>
-    <div class="inputForm">
-      <svg height="20" viewBox="-64 0 512 512" width="20" xmlns="http://www.w3.org/2000/svg">
-        <path d="m336 512h-288c-26.453125 0-48-21.523438-48-48v-224c0-26.476562
-        21.546875-48 48-48h288c26.453125 0 48 21.523438 
-        48 48v224c0 26.476562-21.546875 48-48 
-        48zm-288-288c-8.8125 0-16 7.167969-16
-        16v224c0 8.832031 7.1875 16 16 
-        16h288c8.8125 0 16-7.167969 
-        16-16v-224c0-8.832031-7.1875-16-16-
-        16zm0 0"></path>
-        <path d="m304 224c-8.832031 0-16-
-        7.167969-16-16v-80c0-52.929688-43.070312-
-        96-96-96s-96 43.070312-96 96v80c0 
-        8.832031-7.167969 16-16 
-        16s-16-7.167969-16-16v-80c0-70.59375 
-        57.40625-128 128-128s128 57.40625 
-        128 128v80c0 8.832031-7.167969 
-        16-16 16zm0 0"></path>
-      </svg>
-      <input type="password" name="password" class="input" placeholder="Create a Password">
-    </div>
+            const userSignInForm = document.getElementById("userSignInForm");
+            const userSignUpForm = document.getElementById("userSignUpForm");
 
-    <!-- CONFIRM PASSWORD -->
-    <div class="flex-column"><label>Confirm Password </label></div>
-    <div class="inputForm">
-      <svg height="20" viewBox="-64 0 512 512" width="20" xmlns="http://www.w3.org/2000/svg">
-        <path d="m336 512h-288c-26.453125 0-48-
-        21.523438-48-48v-224c0-26.476562 
-        21.546875-48 48-48h288c26.453125 0 48 
-        21.523438 48 48v224c0 26.476562-21.546875 
-        48-48 48zm-288-288c-8.8125 0-16 
-        7.167969-16 16v224c0 8.832031 
-        7.1875 16 16 16h288c8.8125 0 
-        16-7.167969 16-16v-224c0-8.832031-
-        7.1875-16-16-16zm0 0"></path>
-        <path d="m304 224c-8.832031 0-
-        16-7.167969-16-16v-80c0-52.929688-
-        43.070312-96-96-96s-96 43.070312-96 
-        96v80c0 8.832031-7.167969 16-16 
-        16s-16-7.167969-16-16v-80c0-70.59375 
-        57.40625-128 128-128s128 57.40625 
-        128 128v80c0 8.832031-7.167969 
-        16-16 16zm0 0"></path>
-      </svg>
-      <input type="password" name="confirm_password" class="input" placeholder="Re-enter Password">
-    </div>
+            const vendorSignInForm = document.getElementById("vendorSignInForm");
+            const vendorSignUpForm = document.getElementById("vendorSignUpForm");
 
-    <button class="button-submit">Sign Up</button>
-    <p class="p">Already have an account? <span class="span link-button" data-toggle="userSignIn">Sign In</span></p>
-    <p class="p"><span class="span link-button" data-toggle="roleSelect">← Change Role</span></p>
-  </form>
-</div>
+            const navTriggers = document.querySelectorAll('[data-role], [data-toggle]');
 
-      </div>
-      
-      <div class="form-section hidden-form" id="vendorSection">
+            setTimeout(() => {
+                imageSection.style.width = "50%";
+                loginSection.style.width = "50%";
+                loginSection.style.opacity = "1";
+            }, 1000);
 
-        <div id="vendorSignInForm">
-          <form class="form">
-            <div class="flex-column">
-              <h1>Vendor Sign In</h1>
-            </div>    
-            <div class="flex-column"><label>Company Email </label></div>
-            <div class="inputForm">
-              <svg height="20" viewBox="0 0 32 32" width="20" xmlns="http://www.w3.org/2000/svg"><g id="Layer_3" data-name="Layer 3"><path d="m30.853 13.87a15 15 0 0 0 -29.729 4.082 15.1 15.1 0 0 0 12.876 12.918 15.6 15.6 0 0 0 2.016.13 14.85 14.85 0 0 0 7.715-2.145 1 1 0 1 0 -1.031-1.711 13.007 13.007 0 1 1 5.458-6.529 2.149 2.149 0 0 1 -4.158-.759v-10.856a1 1 0 0 0 -2 0v1.726a8 8 0 1 0 .2 10.325 4.135 4.135 0 0 0 7.83.274 15.2 15.2 0 0 0 .823-7.455zm-14.853 8.13a6 6 0 1 1 6-6 6.006 6.006 0 0 1 -6 6z"></path></g></svg>
-              <input type="text" class="input" placeholder="Enter Company Email">
-            </div>
-            
-            <div class="flex-column"><label>Password </label></div>
-            <div class="inputForm">
-              <svg height="20" viewBox="-64 0 512 512" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m336 512h-288c-26.453125 0-48-21.523438-48-48v-224c0-26.476562 21.546875-48 48-48h288c26.453125 0 48 21.523438 48 48v224c0 26.476562-21.546875 48-48 48zm-288-288c-8.8125 0-16 7.167969-16 16v224c0 8.832031 7.1875 16 16 16h288c8.8125 0 16-7.167969 16-16v-224c0-8.832031-7.1875-16-16-16zm0 0"></path><path d="m304 224c-8.832031 0-16-7.167969-16-16v-80c0-52.929688-43.070312-96-96-96s-96 43.070312-96 96v80c0 8.832031-7.167969 16-16 16s-16-7.167969-16-16v-80c0-70.59375 57.40625-128 128-128s128 57.40625 128 128v80c0 8.832031-7.167969 16-16 16zm0 0"></path></svg>        
-              <input type="password" class="input" placeholder="Enter Password">
-              <svg viewBox="0 0 576 512" height="1em" xmlns="http://www.w3.org/2000/svg"><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM144 256a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm144-64c0 35.3-28.7 64-64 64c-7.1 0-13.9-1.2-20.3-3.3c-5.5-1.8-11.9 1.6-11.7 7.4c.3 6.9 1.3 13.8 3.2 20.7c13.7 51.2 66.4 81.6 117.6 67.9s81.6-66.4 67.9-117.6c-11.1-41.5-47.8-69.4-88.6-71.1c-5.8-.2-9.2 6.1-7.4 11.7c2.1 6.4 3.3 13.2 3.3 20.3z"></path></svg>
-            </div>
-            <button class="button-submit">Vendor Sign In</button>
-            <p class="p">New vendor? <span class="span link-button" data-toggle="vendorSignUp">Sign Up Here</span></p>
-            <p class="p"><span class="span link-button" data-toggle="roleSelect">← Change Role</span></p>
-          </form>
-        </div>
+            function hideAllSections() {
+                roleSelectionSection.classList.add("hidden-form");
+                userSection.classList.add("hidden-form");
+                vendorSection.classList.add("hidden-form");
+            }
 
-        <div id="vendorSignUpForm" class="hidden-form">
-          <form class="form">
-            <div class="flex-column"><h1>Vendor Sign Up</h1></div>    
-            <div class="flex-column"><label>Company Name </label></div>
-            <div class="inputForm">
-              <svg height="20" width="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M2 7h18a2 2 0 012 2v10a2 2 0 01-2 2H2a2 2 0 01-2-2V9a2 2 0 012-2zm0-4h18a2 2 0 012 2v2H0V5a2 2 0 012-2z" fill="#000"/></svg>
-              <input type="text" class="input" placeholder="Brick & Co.">
-            </div>
+            function hideAllForms() {
+                userSignInForm.classList.add("hidden-form");
+                userSignUpForm.classList.add("hidden-form");
+                vendorSignInForm.classList.add("hidden-form");
+                vendorSignUpForm.classList.add("hidden-form");
+            }
 
-            <div class="flex-column"><label>Official Email </label></div>
-            <div class="inputForm">
-              <svg height="20" viewBox="0 0 32 32" width="20" xmlns="http://www.w3.org/2000/svg"><g id="Layer_3" data-name="Layer 3"><path d="m30.853 13.87a15 15 0 0 0 -29.729 4.082 15.1 15.1 0 0 0 12.876 12.918 15.6 15.6 0 0 0 2.016.13 14.85 14.85 0 0 0 7.715-2.145 1 1 0 1 0 -1.031-1.711 13.007 13.007 0 1 1 5.458-6.529 2.149 2.149 0 0 1 -4.158-.759v-10.856a1 1 0 0 0 -2 0v1.726a8 8 0 1 0 .2 10.325 4.135 4.135 0 0 0 7.83.274 15.2 15.2 0 0 0 .823-7.455zm-14.853 8.13a6 6 0 1 1 6-6 6.006 6.006 0 0 1 -6 6z"></path></g></svg>
-              <input type="text" class="input" placeholder="contact@brickco.com">
-            </div>
+            let selectedRole = "customer";
 
-            <div class="flex-column"><label>Business License Number </label></div>
-            <div class="inputForm">
-                <svg height="20" viewBox="0 0 24 24" width="20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 11h10M7 15h10M4 5h16a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V7a2 2 0 012-2z" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <input type="text" class="input" placeholder="e.g., V456789ABC">
-            </div>
-            
-            <div class="flex-column"><label>Password </label></div>
-            <div class="inputForm">
-              <svg height="20" viewBox="-64 0 512 512" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m336 512h-288c-26.453125 0-48-21.523438-48-48v-224c0-26.476562 21.546875-48 48-48h288c26.453125 0 48 21.523438 48 48v224c0 26.476562-21.546875 48-48 48zm-288-288c-8.8125 0-16 7.167969-16 16v224c0 8.832031 7.1875 16 16 16h288c8.8125 0 16-7.167969 16-16v-224c0-8.832031-7.1875-16-16-16zm0 0"></path><path d="m304 224c-8.832031 0-16-7.167969-16-16v-80c0-52.929688-43.070312-96-96-96s-96 43.070312-96 96v80c0 8.832031-7.167969 16-16 16s-16-7.167969-16-16v-80c0-70.59375 57.40625-128 128-128s128 57.40625 128 128v80c0 8.832031-7.167969 16-16 16zm0 0"></path></svg>           
-              <input type="password" class="input" placeholder="Create a Secure Password">
-            </div>
-            
-            <div class="flex-column"><label>Confirm Password </label></div>
-            <div class="inputForm">
-              <svg height="20" viewBox="-64 0 512 512" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m336 512h-288c-26.453125 0-48-21.523438-48-48v-224c0-26.476562 21.546875-48 48-48h288c26.453125 0 48 21.523438 48 48v224c0 26.476562-21.546875 48-48 48zm-288-288c-8.8125 0-16 7.167969-16 16v224c0 8.832031 7.1875 16 16 16h288c8.8125 0 16-7.167969 16-16v-224c0-8.832031-7.1875-16-16-16zm0 0"></path><path d="m304 224c-8.832031 0-16-7.167969-16-16v-80c0-52.929688-43.070312-96-96-96s-96 43.070312-96 96v80c0 8.832031-7.167969 16-16 16s-16-7.167969-16-16v-80c0-70.59375 57.40625-128 128-128s128 57.40625 128 128v80c0 8.832031-7.167969 16-16 16zm0 0"></path></svg>           
-              <input type="password" class="input" placeholder="Re-enter Password">
-            </div>
-            
-            <button class="button-submit">Register Vendor</button>
-            <p class="p">Already registered? <span class="span link-button" data-toggle="vendorSignIn">Sign In</span></p>
-            <p class="p"><span class="span link-button" data-toggle="roleSelect">← Change Role</span></p>
-          </form>
-        </div>
-      </div>
+            navTriggers.forEach(element => {
+                element.addEventListener("click", () => {
+                    const role = element.getAttribute("data-role");
+                    const toggle = element.getAttribute("data-toggle");
+                    if (role || toggle) {
+                         const activeForm = document.querySelector('.form-section:not(.hidden-form) .form:not(.hidden-form)');
+                         if (activeForm) clearAllErrors(activeForm);
+                    }
 
-    </div>
-  </div>
-  <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const imageSection = document.getElementById("imageSection");
-  const loginSection = document.getElementById("loginSection");
+                    if (role) {
+                        hideAllSections();
+                        selectedRole = role;
 
-  const roleSelectionSection = document.getElementById("roleSelectionSection");
-  const userSection = document.getElementById("userSection");
-  const vendorSection = document.getElementById("vendorSection");
+                        if (role === "customer") {
+                            userSection.classList.remove("hidden-form");
+                            hideAllForms();
+                            userSignInForm.classList.remove("hidden-form");
+                        } else if (role === "vendor") {
+                            vendorSection.classList.remove("hidden-form");
+                            hideAllForms();
+                            vendorSignInForm.classList.remove("hidden-form");
+                        }
+                    } else if (toggle) {
+                        if (toggle === "roleSelect") {
+                            hideAllSections();
+                            roleSelectionSection.classList.remove("hidden-form");
+                        }
 
-  const userSignInForm = document.getElementById("userSignInForm");
-  const userSignUpForm = document.getElementById("userSignUpForm");
+                        if (toggle === "userSignUp") {
+                            userSignInForm.classList.add("hidden-form");
+                            userSignUpForm.classList.remove("hidden-form");
+                        } else if (toggle === "userSignIn") {
+                            userSignUpForm.classList.add("hidden-form");
+                            userSignInForm.classList.remove("hidden-form");
+                        }
 
-  const vendorSignInForm = document.getElementById("vendorSignInForm");
-  const vendorSignUpForm = document.getElementById("vendorSignUpForm");
+                        if (toggle === "vendorSignUp") {
+                            vendorSignInForm.classList.add("hidden-form");
+                            vendorSignUpForm.classList.remove("hidden-form");
+                        } else if (toggle === "vendorSignIn") {
+                            vendorSignUpForm.classList.add("hidden-form");
+                            vendorSignInForm.classList.remove("hidden-form");
+                        }
+                    }
+                });
+            });
+            const isValidEmail = (email) => {
+                const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                return re.test(String(email).toLowerCase());
+            };
 
-  const navTriggers = document.querySelectorAll('[data-role], [data-toggle]');
+            const isPasswordStrong = (password) => {
+                const re = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+                return re.test(String(password));
+            };
 
-  setTimeout(() => {
-    imageSection.style.width = "50%";
-    loginSection.style.width = "50%";
-    loginSection.style.opacity = "1";
-  }, 1000);
+            const validateSignupForm = (form) => {
+                const inputs = form.querySelectorAll('input[required]');
+                let isValid = true;
+                clearAllErrors(form);
+                for (let i = 0; i < inputs.length; i++) {
+                    const input = inputs[i];
+                    
+                    if (!input.value.trim()) {
+                        showError(input, `This field is required.`);
+                        input.focus();
+                        isValid = false;
+                        return false;
+                    }
+                    if (input.type === 'email' && !isValidEmail(input.value)) {
+                        showError(input, `Please enter a valid email address.`);
+                        input.focus();
+                        isValid = false;
+                        return false;
+                    }
+                };
 
-  function hideAllSections() {
-    roleSelectionSection.classList.add("hidden-form");
-    userSection.classList.add("hidden-form");
-    vendorSection.classList.add("hidden-form");
-  }
+                if (!isValid) return false;
+                const passwordInput = form.querySelector('input[name="password"]');
+                const confirmPasswordInput = form.querySelector('input[name="confirm_password"]');
 
-  function hideAllForms() {
-    userSignInForm.classList.add("hidden-form");
-    userSignUpForm.classList.add("hidden-form");
-    vendorSignInForm.classList.add("hidden-form");
-    vendorSignUpForm.classList.add("hidden-form");
-  }
+                if (passwordInput && confirmPasswordInput) {
+                    if (!isPasswordStrong(passwordInput.value)) {
+                        showError(passwordInput, "Must be 8+ chars, 1 uppercase, 1 lowercase, 1 number, and 1 special char (@$!%*?&).");
+                        passwordInput.focus();
+                        return false;
+                    }
+                    if (passwordInput.value !== confirmPasswordInput.value) {
+                        showError(confirmPasswordInput, "Passwords do not match.");
+                        confirmPasswordInput.focus();
+                        return false;
+                    }
+                }
+                
+                return true;
+            };
+            document.querySelectorAll('.form input').forEach(input => {
+                input.addEventListener('input', () => {
+                    clearError(input);
+                });
+            });
 
-  let selectedRole = "customer";
+            const allSignupForms = document.querySelectorAll("#userSignUpForm form, #vendorSignUpForm form");
+            allSignupForms.forEach(form => {
+                form.addEventListener("submit", async e => {
+                    e.preventDefault();
 
-  navTriggers.forEach(element => {
-    element.addEventListener("click", () => {
-      const role = element.getAttribute("data-role");
-      const toggle = element.getAttribute("data-toggle");
+                    if (!validateSignupForm(form)) {
+                        return; 
+                    }
+                    
+                    clearAllErrors(form); 
+                    showLoader(); 
+                    const formData = Object.fromEntries(new FormData(e.target).entries());
+                    formData.role = selectedRole;
 
-      if (role) {
-        hideAllSections();
-        selectedRole = role;
+                    try {
+                        const response = await fetch("signup/", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(formData),
+                        });
+                        
+                        hideLoader();
 
-        if (role === "customer") {
-          userSection.classList.remove("hidden-form");
-          hideAllForms();
-          userSignInForm.classList.remove("hidden-form");
-        } else if (role === "vendor") {
-          vendorSection.classList.remove("hidden-form");
-          hideAllForms();
-          vendorSignInForm.classList.remove("hidden-form");
-        }
-      } else if (toggle) {
-        if (toggle === "roleSelect") {
-          hideAllSections();
-          roleSelectionSection.classList.remove("hidden-form");
-        }
+                        if (response.status === 200) {
+                            const result = await response.json(); 
+                            if (result.redirect_url) {
+                                window.location.href = result.redirect_url;
+                            } else {
+                                showAlert("Registration Success", "Account created successfully, but no redirect URL provided. Check console for details.");
+                            }
+                        } else {
+                            const errorResult = await response.json();
+                            showAlert("Registration Failed", errorResult.message || 'Server error occurred during sign up. Please try again.');
+                        }
 
-        if (toggle === "userSignUp") {
-          userSignInForm.classList.add("hidden-form");
-          userSignUpForm.classList.remove("hidden-form");
-        } else if (toggle === "userSignIn") {
-          userSignUpForm.classList.add("hidden-form");
-          userSignInForm.classList.remove("hidden-form");
-        }
+                    } catch (err) {
+                        console.error(err);
+                        hideLoader(); 
+                        showAlert("Network Error", "Signup failed due to network or application error. Please check your connection and try again.");
+                    }
+                });
+            });
+            const allSignInForms = document.querySelectorAll("#userSignInForm form, #vendorSignInForm form");
+            allSignInForms.forEach(form => {
+                form.addEventListener("submit", async e => {
+                    e.preventDefault();
+                    
+                    clearAllErrors(form); 
+                    showLoader(); 
 
-        if (toggle === "vendorSignUp") {
-          vendorSignInForm.classList.add("hidden-form");
-          vendorSignUpForm.classList.remove("hidden-form");
-        } else if (toggle === "vendorSignIn") {
-          vendorSignUpForm.classList.add("hidden-form");
-          vendorSignInForm.classList.remove("hidden-form");
-        }
-      }
-    });
-  });
+                    const formData = Object.fromEntries(new FormData(e.target).entries());
+                    formData.role = selectedRole;
 
-  // ✅ Signup form submission (both user + vendor)
-  const allSignupForms = document.querySelectorAll("#userSignUpForm, #vendorSignUpForm");
-  allSignupForms.forEach(form => {
-    form.addEventListener("submit", async e => {
-      e.preventDefault();
-      const formData = Object.fromEntries(new FormData(e.target).entries());
-      formData.role = selectedRole;
+                    try {
+                        const response = await fetch("signin/", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(formData),
+                        });
+                        
+                        hideLoader(); 
 
-      console.log("Submitting signup:", formData);
+                        if (response.status === 200) {
+                            const result = await response.json(); 
+                            if (result.redirect_url) {
+                              if (formData.username) {
+                                  localStorage.setItem("last_login_id", formData.username);
+                              }
+                              if (formData.email) {
+                                  localStorage.setItem("last_login_id", formData.email);
+                              }
+                                window.location.href = result.redirect_url;
+                            } else {
+                                showAlert("Sign In Success", "Sign in successful, but no redirect URL provided.");
+                            }
+                        } else {
+                            const errorResult = await response.json();
+                            showAlert("Sign In Failed", errorResult.message || 'Invalid credentials or server error. Please check your inputs.');
+                            
+                            form.querySelector('input[name="username"]')?.closest('.inputForm')?.classList.add('error');
+                            form.querySelector('input[name="email"]')?.closest('.inputForm')?.classList.add('error');
+                            form.querySelector('input[name="password"]')?.closest('.inputForm')?.classList.add('error');
+                        }
 
-      try {
-        const response = await fetch("signup/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+                    } catch (err) {
+                        console.error(err);
+                        hideLoader(); 
+                        showAlert("Network Error", "Sign-in failed due to network or application error. Please try again.");
+                    }
+                });
+            });
         });
-        console.log(response);
-        // ... after checking for success:
-if (response.status === 200) {
-    const result = await response.json(); // <-- Parse the JSON body
-    console.log("yuh");
-    // Access the key from the parsed JSON result
-    if (result.redirect_url) {
-        window.location.href = result.redirect_url;
-    } else {
-        alert("Success but no redirect URL provided.");
-    }
-}
-// ...
-      } catch (err) {
-        console.error(err);
-        alert("Signup failed. Please try again.");
-      }
-    });
-  });
-});
-</script>
-
-
+    </script>
 </body>
 </html>
