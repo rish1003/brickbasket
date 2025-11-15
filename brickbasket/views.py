@@ -178,7 +178,7 @@ def user_main(request):
         if not category.products.exists():
             continue
 
-        top_list = category.most_ordered[:4]  
+        top_list = category.most_ordered[:3]  
         if not top_list:
             continue
 
@@ -200,37 +200,40 @@ def admin_main(request):
     #first page user sees after logging in
     return render(request, 'admin/admin_main.html')
 
-def product_view(request):
-    #product details page, viewed on clicking a product card
-    return render(request, 'user/product_view.html')
-
+def product_view(request, pk):
+     #product details page, viewed on clicking a product card
+    product = get_object_or_404(Product, pk=pk)
+    return render(request, 'user/product_view.html', {'product': product})
 
 
 @csrf_exempt 
 def approve_vendor(request, vendor_id):
     try:
-        vendor = Vendor.objects.get(pk=vendor_id)
+        vendor = get_object_or_404(Vendor,vendor_id = vendor_id)
         vendor.verified = True
         vendor.save()
-
+        target_url = reverse(admin_dashboard) 
         vendor.user.status = "active"
         vendor.user.save()
+        return redirect('admin_dashboard')
 
-        return reverse(admin_dashboard)
     except Vendor.DoesNotExist:
         return JsonResponse({"error": "Vendor not found"}, status=404)
  
 @csrf_exempt   
 def reject_vendor(request, vendor_id):
     try:
-        vendor = Vendor.objects.get(pk=vendor_id)
+        vendor = get_object_or_404(Vendor,vendor_id = vendor_id)
+        target_url = reverse(admin_dashboard) 
 
         vendor.user.status = "disabled"
         vendor.user.save()
 
         vendor.delete()  # removes vendor entry
+        return redirect('admin_dashboard')
 
-        return reverse(admin_dashboard)
+
+        
     except Vendor.DoesNotExist:
         return JsonResponse({"error": "Vendor not found"}, status=404)
     
@@ -434,7 +437,7 @@ def admin_dashboard(request):
         "revenue_data": revenue_data,
     })
 
-
+@csrf_exempt
 @transaction.atomic
 def add_to_cart(request):
     user = request.user
@@ -443,7 +446,7 @@ def add_to_cart(request):
     product_id = data.get("product_id")
     quantity = int(data.get("quantity", 1))
 
-    product = Product.objects.select_for_update().get(id=product_id)
+    product = Product.objects.select_for_update().get(product_id=product_id)
 
     if product.stock < quantity:
         return JsonResponse({"error": "Not enough stock"}, status=400)
