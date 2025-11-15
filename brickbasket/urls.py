@@ -19,6 +19,7 @@ from django.urls import path
 from .views import *
 from django.conf import settings
 from django.conf.urls.static import static
+from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,7 +33,7 @@ urlpatterns = [
     path("admin_user/<int:user_id>/toggle/", toggle_user_status, name="toggle_user_status"),
     path('user/', user_main, name="user_main"),
     path('vendor/', vendor_main, name="vendor_main"),
-    path('user/product', product_view, name="produSct"),
+    path('user/product', product_view, name="product_view"),
     path("cart/data/",get_cart, name="cart_data"),
     path("cart/add/", add_to_cart, name="add_to_cart"),
     path("cart/<int:item_id>/inc/", increment_cart_item, name="cart_inc"),
@@ -47,6 +48,10 @@ urlpatterns = [
     path('vendor/management/edit/<int:item_id>/', edit_item, name='edit_item'),
     path('vendor/management/delete/<int:item_id>/', delete_item, name='delete_item'),
     
+    path('profile/', views.user_profile, name='user_profile'),
+    
+    
+
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

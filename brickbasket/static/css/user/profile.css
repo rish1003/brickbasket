@@ -1,0 +1,63 @@
+/* profile.css */
+.profile-card {
+    border-radius: .75rem;
+    overflow: hidden;
+}
+
+.avatar-wrapper {
+    width: 96px;
+    height: 96px;
+    flex-shrink: 0;
+}
+
+.avatar {
+    width: 96px;
+    height: 96px;
+    object-fit: cover;
+}
+
+.avatar-placeholder {
+    width: 96px;
+    height: 96px;
+    background: #6c757d;
+}
+
+.info-label {
+    color: #6c757d;
+    font-size: .85rem;
+    margin-bottom: .25rem;
+}
+
+.info-value {
+    font-weight: 600;
+    font-size: .95rem;
+}
+
+.prewrap {
+    white-space: pre-wrap;
+}
+
+@media (max-width: 576px) {
+    .avatar-wrapper {
+        width: 72px;
+        height: 72px;
+    }
+
+    .avatar,
+    .avatar-placeholder {
+        width: 72px;
+        height: 72px;
+    }
+}
+
+.logout-button {
+    background-color: black;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    width: 10rem;
+    height: 40px;
+    transition: 0.3s;
+    font-size: 1rem;
+}

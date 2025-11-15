@@ -87,6 +87,7 @@ class Product(models.Model):
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='products')
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
     name = models.CharField(max_length=100)
+    subname =  models.CharField(max_length=100,null=True,default="")
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     unit = models.CharField(max_length=10,default="pcs")  # e.g., kg, lb, pcs, etc.
