@@ -49,77 +49,34 @@
         </div>
     </main>
 
-    <!-- Category Section -->
-    <section class="container category-section">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="category-heading">Construction Materials</h2>
-            <a href="#" class="text-decoration-none">View all</a>
-        </div>
-        <div class="d-flex flex-wrap justify-content-center gap-4 user-card-row">
-            <div class="card-wrap">
-                {% include 'user/components/card.html' %}
-            </div>
-            <div class="card-wrap">
-                {% include 'user/components/card.html' %}
-            </div>
-            <div class="card-wrap">
-                {% include 'user/components/card.html' %}
-            </div>
-            <div class="card-wrap">
-                {% include 'user/components/card.html' %}
-            </div>
-        </div>
+{# Loop categories prepared by the view #}
+{% for entry in categories_data %}
+  <section class="container category-section mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="category-heading">{{ entry.category.category_name }}</h2>
+      <a href="" class="text-decoration-none">View all</a>
+    </div>
 
-    </section>
-
-     <section class="container category-section">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="category-heading">Construction Materials</h2>
-            <a href="#" class="text-decoration-none">View all</a>
+    <div class="d-flex flex-wrap justify-content-center gap-4 user-card-row">
+      {% for pair in entry.top_list %}
+        {# pair is a (product, total) tuple; access with pair.0 and pair.1 #}
+        <div class="card-wrap">
+          {% with product=pair.0 total=pair.1 %}
+            {% include 'user/components/card.html' with product=product %}
+          {% endwith %}
         </div>
-        <div class="d-flex flex-wrap justify-content-center gap-4 user-card-row">
-            <div class="card-wrap">
-                {% include 'user/components/card.html' %}
-            </div>
-            <div class="card-wrap">
-                {% include 'user/components/card.html' %}
-            </div>
-            <div class="card-wrap">
-                {% include 'user/components/card.html' %}
-            </div>
-            <div class="card-wrap">
-                {% include 'user/components/card.html' %}
-            </div>
-        </div>
+      {% empty %}
+        <p class="text-muted">No products in this category</p>
+      {% endfor %}
+    </div>
+  </section>
+{% endfor %}
 
-    </section>
 
-     <section class="container category-section">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="category-heading">Construction Materials</h2>
-            <a href="#" class="text-decoration-none">View all</a>
-        </div>
-        <div class="d-flex flex-wrap justify-content-center gap-4 user-card-row">
-            <div class="card-wrap">
-                {% include 'user/components/card.html' %}
-            </div>
-            <div class="card-wrap">
-                {% include 'user/components/card.html' %}
-            </div>
-            <div class="card-wrap">
-                {% include 'user/components/card.html' %}
-            </div>
-            <div class="card-wrap">
-                {% include 'user/components/card.html' %}
-            </div>
-        </div>
-
-    </section>
-
-   <!---footer--->
+    <!---footer--->
     {% include 'user/components/footer.html' %}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
+
 </body>
 
 </html>

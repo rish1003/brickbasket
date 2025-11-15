@@ -52,6 +52,7 @@ class Vendor(models.Model):
 
     def __str__(self):
         return self.company_name
+    
     @property
     def total_products(self):
         return self.products.count()
@@ -79,6 +80,16 @@ class Category(models.Model):
     @property
     def product_count(self):
         return self.products.count()
+    
+    @property
+    def most_ordered(self):
+        results = []  
+        for product in self.products.all():            
+            agg = product.order_items.aggregate(total=Sum('quantity'))  
+            total = int(agg['total'] or 0)             
+            results.append((product, total))
+        results.sort(key=lambda x: x[1], reverse=True)
+        return results
 
 
 # ----------- PRODUCT MODEL -----------
@@ -90,7 +101,6 @@ class Product(models.Model):
     subname =  models.CharField(max_length=100,null=True,default="")
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    unit = models.CharField(max_length=10,default="pcs")  # e.g., kg, lb, pcs, etc.
     stock = models.PositiveIntegerField()
     image = CustomFileField(upload_to='product_images/', null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
@@ -165,8 +175,8 @@ class Order(models.Model):
         total = self.total_before_tax + self.total_tax
 
         return total.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-
-
+    
+    
 
 # ----------- ORDER ITEM MODEL -----------
 class OrderItem(models.Model):

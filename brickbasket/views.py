@@ -170,8 +170,25 @@ def user_logout(request):
 #     return render(request, 'user/navbar.html')
 
 def user_main(request):
-    #first page user sees after logging in
-    return render(request, 'user/user_main.html')
+    categories_qs = Category.objects.all()
+    categories_data = []
+
+    for category in categories_qs:
+        if not category.products.exists():
+            continue
+
+        top_list = category.most_ordered[:4]  
+        if not top_list:
+            continue
+
+        categories_data.append({
+            "category": category,
+            "top_list": top_list
+        })
+
+    return render(request, 'user/user_main.html', {
+        "categories_data": categories_data,
+    })
 
 
 def vendor_main(request):
@@ -624,7 +641,6 @@ def order_success(request, order_id):
         "payment_status": order.payment_status,
         "order_status": order.order_status,
     })
-    
     
 @login_required
 def user_profile(request):

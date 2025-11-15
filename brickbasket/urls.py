@@ -44,7 +44,6 @@ urlpatterns = [
     path("order/success/<int:order_id>/", order_success, name="order_success"),
     path('profile/', views.user_profile, name='user_profile'),
     
-    
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -17,7 +17,7 @@
     <div class="card product-card mx-auto" style="max-width: 380px; cursor: pointer;"
          onclick="">
       {% if product.image %}
-        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="card-img-top product-image">
+        <img src="{{product.image}}"  alt="{{ product.name }}" class="card-img-top product-image">
       {% else %}
         <!-- placeholder when no image -->
         <img src="{% static 'images/placeholder.png' %}" alt="No image" class="card-img-top product-image">

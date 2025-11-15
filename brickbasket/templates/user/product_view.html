@@ -27,19 +27,19 @@
 
 <body class="bg-white">
 
-    <!-- navbar -->
+    
     {% include 'user/components/navbar.html' %}
 
-    <!-- Product Page -->
+    
     <main class="container product-page mb-10">
         <div class="row gx-2 align-items-start">
-            <!-- Left: Image -->
+           
             <div class="col-12 col-lg-6">
                 <img src="{% static 'images/user/product_image.jpg' %}" alt="Paint Product"
                     class="product-image img-fluid rounded">
             </div>
 
-            <!-- Right: Details -->
+           
             <div class="col-10 col-lg-6">
                 <div class="product-info divider-start">
                     <h1 class="product-title">{{product.name}}</h1>
