@@ -10,29 +10,10 @@
 
 </head>
 <body>
+    
+  {% include 'vendor/navbar.html' %}
 
-  <nav class="navbar navbar-expand-lg navbar-light">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="#">BrickBasket</a>
-
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ms-auto align-items-center"> 
-          <li>
-            <form method="POST" action="{% url 'logout' %}">
-              {% csrf_token %}
-              <button class="nav-button" type="submit">Logout</button>
-            </form>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-
+ 
 
   <div class="vendor-container">
 
@@ -51,10 +32,10 @@
         <span>Items List</span>
       </h2>
       
-      <table class="custom-table">
+       <table class="custom-table">
         <thead>
           <tr>
-            <th>Item ID</th>
+            <th>S.No</th>
             <th>Item Name</th>
             <th>Total Quantity</th>
             <th>Unit Price</th>
@@ -64,17 +45,17 @@
         <tbody>
           {% for item in items %}
           <tr>
-            <td>{{ item.id }}</td>
+            <td>{{ forloop.counter }}</td>
             <td>{{ item.name }}</td>
-            <td>{{ item.total_qty }}</td>
-            <td>{{ item.unit_price }}</td>
+            <td>{{ item.stock }}</td>
+            <td>{{ item.price }}</td>
             <td>
               <div class="action-buttons">
-                <a href="{% url 'edit_item' item.id %}" class="btn-primary-custom btn-sm">
+                <a href="{% url 'edit_item' item.product_id %}" class="btn-primary-custom btn-sm">
                     Edit
                 </a>
 
-                <form method="POST" action="{% url 'delete_item' item.id %}" style="display:inline;">
+                <form method="POST" action="{% url 'delete_item' item.product_id %}" style="display:inline;">
                 {% csrf_token %}
                 <button type="submit" class="btn-secondary-custom btn-sm">
                   Delete
@@ -90,7 +71,7 @@
           </tr>
           {% endfor %}
         </tbody>
-      </table>
+      </table> 
     </div>
   
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
