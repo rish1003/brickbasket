@@ -60,8 +60,14 @@
 
 /* Quantity control */
 .qty-input {
-    width: 12px;
+    width: 200px;
 }
+
+.qty-box {
+    width: 3000px;
+    text-align: center;
+}
+
 
 .qty-input input[type="number"] {
   max-width: 30px;   /* adjust width as needed */

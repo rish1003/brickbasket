@@ -38,3 +38,21 @@
     font-weight: 600;
     color: #000;
 }
+
+.card-button {
+  background-color: black;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  width: 100px;
+  height: 40px;
+  transition: 0.3s;
+  font-size: 1rem;
+}
+
+/* Hover effect */
+.card-button:hover {
+  background-color: #444;
+  color: #fff;
+}
