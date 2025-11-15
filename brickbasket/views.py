@@ -15,6 +15,7 @@ from django.db.models.functions import TruncMonth
 from django.db.models import Count
 from django.utils.text import slugify
 from django.db import transaction
+from django.contrib.auth.decorators import login_required
 
 def landing(request):
     if request.user.is_authenticated:
@@ -624,3 +625,7 @@ def order_success(request, order_id):
         "order_status": order.order_status,
     })
     
+    
+@login_required
+def user_profile(request):
+    return render(request, 'user/profile.html', {})
