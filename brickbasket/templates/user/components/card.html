@@ -13,13 +13,12 @@
   <link rel="stylesheet" href="{% static 'css/user/components/card.css' %}">
 </head>
 <body>
+<a href="{% url 'product_view' product.product_id %}" class="text-decoration-none">
   <div class="container py-4">
-    <div class="card product-card mx-auto" style="max-width: 380px; cursor: pointer;"
-         onclick="">
+    <div class="card product-card mx-auto" style="max-width: 380px;">
       {% if product.image %}
         <img src="{{ product.image.url }}" alt="{{ product.name }}" class="card-img-top product-image">
       {% else %}
-        <!-- placeholder when no image -->
         <img src="{% static 'images/placeholder.png' %}" alt="No image" class="card-img-top product-image">
       {% endif %}
 
@@ -36,6 +35,9 @@
       </div>
     </div>
   </div>
+</a>
+
+
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
