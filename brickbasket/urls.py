@@ -41,8 +41,11 @@ urlpatterns = [
     path("checkout/", checkout_page, name="checkout"),
     path("order/process/", process_order, name="process_order"),
     path("order/success/<int:order_id>/", order_success, name="order_success"),
-    
-
+    #path("vendor_dashboard/", order_dashboard, name='order_dashboard'),
+    path("vendor/management/", management, name="management"),
+    path('vendor/management/add/', add_item, name='add_item'),
+    path('vendor/management/edit/<int:item_id>/', edit_item, name='edit_item'),
+    path('vendor/management/delete/<int:item_id>/', delete_item, name='delete_item'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
