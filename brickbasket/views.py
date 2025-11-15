@@ -49,7 +49,8 @@ def signup(request):
     password = data.get('password')
     first_name = data.get('first_name')
     last_name = data.get('last_name')
-    username = generate_username(first_name+" "+last_name)
+    if first_name:
+        username = generate_username(first_name+" "+last_name)
     role = data.get('role', 'customer')
 
     # extra fields only for vendor
@@ -175,7 +176,7 @@ def user_main(request):
 
 def vendor_main(request):
     #first page user sees after logging in
-    return render(request, 'vendor/homepage.html')
+    return render(request, 'vendor/dashboard.html')
 
 def admin_main(request):
     #first page user sees after logging in
@@ -623,4 +624,73 @@ def order_success(request, order_id):
         "payment_status": order.payment_status,
         "order_status": order.order_status,
     })
+
+def order_dashboard(request):
+    new_orders = Order.objects.filter(order_status='placed').count()
+    shipped_orders = Order.objects.filter(order_status='dispatched').count()
+    delivered_orders = Order.objects.filter(order_status='delivered').count()
+
+    context = {
+        'new_orders': new_orders,
+        'shipped_orders': shipped_orders,
+        'delivered_orders': delivered_orders,
+    }
+    return render(request, 'vendor/dashboard.html', context)
+def management(request):
+    vendor = Vendor.objects.get(user=request.user.id)
+    items = Product.objects.filter(vendor=vendor)
+    return render(request, "vendor/inventory.html", {"items": items})   
+
+# ---------- ADD ITEM ----------
+def add_item(request):
+    vendor = Vendor.objects.get(user=request.user)
+
+    if request.method == "POST":
+        name = request.POST.get("name")
+        total_qty = request.POST.get("total_qty")
+        unit_price = request.POST.get("unit_price")
+
+        Product.objects.create(
+            vendor=vendor,
+            name=name,
+            total_qty=total_qty,
+            unit_price=unit_price
+        )
+
+        return redirect("management")
+
+    return render(request, "vendor/add_item.html")
+
+
+# ---------- EDIT ITEM ----------
+def edit_item(request, item_id):
+    item = get_object_or_404(Product, id=item_id)
+
+    if request.method == "POST":
+        item.name = request.POST.get("name")
+        item.total_qty = request.POST.get("total_qty")
+        item.unit_price = request.POST.get("unit_price")
+        item.save()
+
+        return redirect("management")
+
+    return render(request, "vendor/edit_item.html", {"item": item})
+
+
+# ---------- DELETE ITEM ----------
+def delete_item(request, item_id):
+    item = get_object_or_404(Product, id=item_id)
+
+    if request.method == "POST":
+        item.delete()
+        return redirect("management")
+
+    return redirect("management")
+'''def a(request):
+    order_counts = Order.objects.filter(order_status="placed")
+    context={
+        'order_counts':order_counts,
+    }
+    return render(request, "vendor/dashboard.html", context)
     
+'''
