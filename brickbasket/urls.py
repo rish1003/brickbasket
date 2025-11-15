@@ -46,6 +46,7 @@ urlpatterns = [
     path('vendor/management/add/', add_item, name='add_item'),
     path('vendor/management/edit/<int:item_id>/', edit_item, name='edit_item'),
     path('vendor/management/delete/<int:item_id>/', delete_item, name='delete_item'),
+    
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

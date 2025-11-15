@@ -644,48 +644,73 @@ def management(request):
 # ---------- ADD ITEM ----------
 def add_item(request):
     vendor = Vendor.objects.get(user=request.user)
+    categories = Category.objects.all()  # to show in dropdown
 
     if request.method == "POST":
         name = request.POST.get("name")
-        total_qty = request.POST.get("total_qty")
-        unit_price = request.POST.get("unit_price")
+        description = request.POST.get("description")
+        category_id = request.POST.get("category")
+        price = request.POST.get("price")
+        unit = request.POST.get("unit")
+        stock = request.POST.get("stock")
+        image = request.FILES.get("image")
+
+        category = Category.objects.get(id=category_id)
 
         Product.objects.create(
             vendor=vendor,
             name=name,
-            total_qty=total_qty,
-            unit_price=unit_price
+            description=description,
+            category=category,
+            price=price,
+            unit=unit,
+            stock=stock,
+            image=image
         )
 
-        return redirect("management")
+        return redirect("management")   # your vendor dashboard
 
-    return render(request, "vendor/add_item.html")
-
+    return render(request, "vendor/add_item.html", {"categories": categories})
 
 # ---------- EDIT ITEM ----------
-def edit_item(request, item_id):
-    item = get_object_or_404(Product, id=item_id)
+def edit_item(request, product_id):
+    vendor = Vendor.objects.get(user=request.user)
+    product = Product.objects.get(product_id=product_id, vendor=vendor)
+    categories = Category.objects.all()
 
     if request.method == "POST":
-        item.name = request.POST.get("name")
-        item.total_qty = request.POST.get("total_qty")
-        item.unit_price = request.POST.get("unit_price")
-        item.save()
+        product.name = request.POST.get("name")
+        product.description = request.POST.get("description")
 
+        category_id = request.POST.get("category")
+        product.category = Category.objects.get(id=category_id)
+
+        product.price = request.POST.get("price")
+        product.unit = request.POST.get("unit")
+        product.stock = request.POST.get("stock")
+
+        # If new image uploaded, replace old one
+        if "image" in request.FILES:
+            product.image = request.FILES["image"]
+
+        product.save()
         return redirect("management")
 
-    return render(request, "vendor/edit_item.html", {"item": item})
-
+    return render(request, "vendor/edit_item.html", {
+        "product": product,
+        "categories": categories
+    })
 
 # ---------- DELETE ITEM ----------
-def delete_item(request, item_id):
-    item = get_object_or_404(Product, id=item_id)
+def delete_item(request, product_id):
+    vendor = Vendor.objects.get(user=request.user)
+    product = Product.objects.get(product_id=product_id, vendor=vendor)
 
     if request.method == "POST":
-        item.delete()
+        product.delete()
         return redirect("management")
 
-    return redirect("management")
+    return render(request, "vendor/delete_item_confirm.html", {"product": product})
 '''def a(request):
     order_counts = Order.objects.filter(order_status="placed")
     context={
