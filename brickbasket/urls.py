@@ -49,7 +49,8 @@ urlpatterns = [
     path('vendor/management/add/', add_item, name='add_item'),
     path('vendor/management/edit/<int:product_id>/', edit_item, name='edit_item'),
     path('vendor/management/delete/<int:product_id>/', delete_item, name='delete_item'),
-    path('profile/', views.user_profile, name='user_profile'),
+    path('profile/', user_profile, name='user_profile'),
+    path('vendor_profile/', vendor_profile, name='vendor_profile'),
 
     
 

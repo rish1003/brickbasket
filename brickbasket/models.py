@@ -102,6 +102,7 @@ class Product(models.Model):
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField()
+    unit = models.CharField(max_length=10,default="pcs")  # e.g., kg, lb, pcs, etc.
     image = CustomFileField(upload_to='product_images/', null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
 

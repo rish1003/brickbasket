@@ -48,9 +48,9 @@
             <div class="col-10 col-lg-6">
                 <div class="product-info divider-start">
                     <h1 class="product-title">{{product.name}}</h1>
-                    <div class="product-sub">{{product.name}}</div>
+                    <div class="product-sub">{{product.subname}}</div>
 
-                    <div class="price">Rs. {{ product.price }}/-</div>
+                    <div class="price">Rs. {{ product.price }}/ {{ product.unit }}</div>
 
                     <p class="text-muted">
                         {{ product.description }}
@@ -63,9 +63,7 @@
                             Add to cart
                         </button>
 
-                        <div class="note">
-                            Text box for additional details or fine print
-                        </div>
+                        
                     </form>
 
                     <div class="mt-4 text-muted">
@@ -87,7 +85,7 @@
     <section class="container category-section">
         <div class="d-flex justify-content-between align-items-center mt-3">
             <h2 class="category-heading">Related Products</h2>
-            <a href="#" class="text-decoration-none">View all</a>
+           
         </div>
         <div class="d-flex flex-wrap justify-content-center gap-4 user-card-row">
             {% for product in products %}

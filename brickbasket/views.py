@@ -174,7 +174,9 @@ def user_main(request):
     categories_qs = Category.objects.all()
     categories_data = []
 
+    print(categories_qs)
     for category in categories_qs:
+        print("hello")
         if not category.products.exists():
             continue
 
@@ -186,6 +188,7 @@ def user_main(request):
             "category": category,
             "top_list": top_list
         })
+    print(categories_data)
 
     return render(request, 'user/user_main.html', {
         "categories_data": categories_data,
@@ -203,7 +206,12 @@ def admin_main(request):
 def product_view(request, pk):
      #product details page, viewed on clicking a product card
     product = get_object_or_404(Product, pk=pk)
-    return render(request, 'user/product_view.html', {'product': product})
+
+    # Fetch related products (same category), excluding itself
+    related_products = Product.objects.filter(
+        category=product.category
+    ).exclude(product_id=product.product_id)[:8]  # limit 8
+    return render(request, 'user/product_view.html', {'product': product,"products": related_products,})
 
 
 @csrf_exempt 
