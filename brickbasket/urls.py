@@ -51,10 +51,7 @@ urlpatterns = [
     path('vendor/management/delete/<int:product_id>/', delete_item, name='delete_item'),
     path('profile/', views.user_profile, name='user_profile'),
 
-    path('vendor/profile/',views.vendor_profile,name='vendor_profile'),
     
-    
-
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
