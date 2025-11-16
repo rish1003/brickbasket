@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: brickbasket
+    env: python
+    plan: free
+    region: oregon
+
+    buildCommand: >
+      pip install -r requirements.txt &&
+      python manage.py collectstatic --noinput
+
+    startCommand: >
+      gunicorn brickbasket.wsgi:application --preload
+
+    envVars:
+      - key: DEBUG
+        value: 'False'
+
+      - key: SECRET_KEY
+        sync: false   
+
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
