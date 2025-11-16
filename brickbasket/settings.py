@@ -27,8 +27,12 @@ SECRET_KEY = 'django-insecure-kc&e2p7-^a!^3ji94912av^3$e^wp!5s@n=r7+hf#kw$1rcs^b
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["brickbasket-1.onrender.com","*"]
-
+ALLOWED_HOSTS = [
+    "brickbasket-1.onrender.com",
+    ".onrender.com",
+    "localhost",
+    "127.0.0.1"
+]
 
 # Application definition
 
