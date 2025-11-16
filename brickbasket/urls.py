@@ -32,7 +32,7 @@ urlpatterns = [
     path('admin_reject/<int:vendor_id>/', reject_vendor, name='reject_vendor'),
     path("admin_user/<int:user_id>/toggle/", toggle_user_status, name="toggle_user_status"),
     path('user/', user_main, name="user_main"),
-    path('vendor/', vendor_main, name="vendor_main"),
+    #path('vendor/', vendor_main, name="vendor_main"),
     path('user/product', product_view, name="product_view"),
     path('product/<int:pk>/', views.product_view, name='product_view'),
 
@@ -44,14 +44,17 @@ urlpatterns = [
     path("checkout/", checkout_page, name="checkout"),
     path("order/process/", process_order, name="process_order"),
     path("order/success/<int:order_id>/", order_success, name="order_success"),
-    #path("vendor_dashboard/", order_dashboard, name='order_dashboard'),
+    path("vendor/", order_dashboard, name='order_dashboard'),
     path("vendor/management/", management, name="management"),
     path('vendor/management/add/', add_item, name='add_item'),
-    path('vendor/management/edit/<int:item_id>/', edit_item, name='edit_item'),
-    path('vendor/management/delete/<int:item_id>/', delete_item, name='delete_item'),
+    path('vendor/management/edit/<int:product_id>/', edit_item, name='edit_item'),
+    path('vendor/management/delete/<int:product_id>/', delete_item, name='delete_item'),
     path('profile/', views.user_profile, name='user_profile'),
 
+    path('vendor/profile/',views.vendor_profile,name='vendor_profile'),
     
+    
+
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

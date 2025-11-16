@@ -24,7 +24,7 @@ def landing(request):
             return redirect("admin_dashboard")
 
         if request.user.role == "vendor":
-            return redirect("vendor_main")
+            return redirect("order_dashboard")
 
         if request.user.role == "customer":
             return redirect("user_main")
@@ -102,7 +102,7 @@ def signup(request):
 
     # ---- Redirect Based on Role ----
     if role == "vendor":
-        target_url = reverse(vendor_main) # Use reverse to get the URL
+        target_url = reverse(order_dashboard) # Use reverse to get the URL
     elif role == "customer":
         target_url = reverse(user_main)
     else:
@@ -147,7 +147,7 @@ def signin(request):
         
         login(request, user)
         if role == "vendor":
-            target_url = reverse(vendor_main) 
+            target_url = reverse(order_dashboard) 
         elif role == "customer":
             target_url = reverse(user_main)
         elif role == "admin":
@@ -192,7 +192,7 @@ def user_main(request):
     })
 
 
-def vendor_main(request):
+def order_dashboard(request):
     #first page user sees after logging in
     return render(request, 'vendor/dashboard.html')
 
@@ -647,14 +647,21 @@ def order_success(request, order_id):
     })
 
 def order_dashboard(request):
-    new_orders = Order.objects.filter(order_status='placed').count()
-    shipped_orders = Order.objects.filter(order_status='dispatched').count()
-    delivered_orders = Order.objects.filter(order_status='delivered').count()
+    recent_orders = Order.objects.order_by('-created_at')[:10]
+    new_orders_list = Order.objects.filter(order_status='placed')
+    shipped_orders_list = Order.objects.filter(order_status='dispatched')
+    delivered_orders_list = Order.objects.filter(order_status='delivered')
 
     context = {
-        'new_orders': new_orders,
-        'shipped_orders': shipped_orders,
-        'delivered_orders': delivered_orders,
+        'recent_orders': recent_orders,
+        # lists for looping
+        'new_orders': new_orders_list,
+        'shipped_orders': shipped_orders_list,
+        'delivered_orders': delivered_orders_list,
+        # counts for dashboard badges (optional)
+        'new_orders_count': new_orders_list.count(),
+        'shipped_orders_count': shipped_orders_list.count(),
+        'delivered_orders_count': delivered_orders_list.count(),
     }
     return render(request, 'vendor/dashboard.html', context)
 def management(request):
@@ -665,48 +672,73 @@ def management(request):
 # ---------- ADD ITEM ----------
 def add_item(request):
     vendor = Vendor.objects.get(user=request.user)
+    categories = Category.objects.all()  # to show in dropdown
 
     if request.method == "POST":
         name = request.POST.get("name")
-        total_qty = request.POST.get("total_qty")
-        unit_price = request.POST.get("unit_price")
+        description = request.POST.get("description")
+        category_id = request.POST.get("category")
+        price = request.POST.get("price")
+        unit = request.POST.get("unit")
+        stock = request.POST.get("stock")
+        image = request.FILES.get("image")
+
+        category = Category.objects.get(category_id=category_id)
 
         Product.objects.create(
             vendor=vendor,
             name=name,
-            total_qty=total_qty,
-            unit_price=unit_price
+            description=description,
+            category=category,
+            price=price,
+            unit=unit,
+            stock=stock,
+            image=image
         )
 
-        return redirect("management")
+        return redirect("management")   # your vendor dashboard
 
-    return render(request, "vendor/add_item.html")
-
+    return render(request, "vendor/add_item.html", {"categories": categories})
 
 # ---------- EDIT ITEM ----------
-def edit_item(request, item_id):
-    item = get_object_or_404(Product, id=item_id)
+def edit_item(request, product_id):
+    vendor = Vendor.objects.get(user=request.user)
+    product = Product.objects.get(product_id=product_id, vendor=vendor)
+    categories = Category.objects.all()
 
     if request.method == "POST":
-        item.name = request.POST.get("name")
-        item.total_qty = request.POST.get("total_qty")
-        item.unit_price = request.POST.get("unit_price")
-        item.save()
+        product.name = request.POST.get("name")
+        product.description = request.POST.get("description")
 
+        category_id = request.POST.get("category")
+        product.category = Category.objects.get(category_id=category_id)
+
+        product.price = request.POST.get("price")
+        product.unit = request.POST.get("unit")
+        product.stock = request.POST.get("stock")
+
+        # If new image uploaded, replace old one
+        if "image" in request.FILES:
+            product.image = request.FILES["image"]
+
+        product.save()
         return redirect("management")
 
-    return render(request, "vendor/edit_item.html", {"item": item})
-
+    return render(request, "vendor/edit_item.html", {
+        "product": product,
+        "categories": categories
+    })
 
 # ---------- DELETE ITEM ----------
-def delete_item(request, item_id):
-    item = get_object_or_404(Product, id=item_id)
+def delete_item(request, product_id):
+    vendor = Vendor.objects.get(user=request.user)
+    product = Product.objects.get(product_id=product_id, vendor=vendor)
 
     if request.method == "POST":
-        item.delete()
+        product.delete()
         return redirect("management")
 
-    return redirect("management")
+    return render(request, "vendor/delete_item_confirm.html", {"product": product})
 '''def a(request):
     order_counts = Order.objects.filter(order_status="placed")
     context={
@@ -719,3 +751,6 @@ def delete_item(request, item_id):
 @login_required
 def user_profile(request):
     return render(request, 'user/profile.html', {})
+@login_required
+def vendor_profile(request):
+    return render(request, 'vendor/profile.html', {})

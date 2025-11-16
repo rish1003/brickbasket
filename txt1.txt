@@ -1,0 +1,4 @@
+<a href="{% url 'edit_item' item.id %}" class="btn-primary-custom btn-sm">
+                    Edit
+                </a>
+{% url 'delete_item' item.id %}
